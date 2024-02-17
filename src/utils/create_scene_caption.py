@@ -1,5 +1,6 @@
 import base64
 import requests
+import os
 
 # OpenAI API Key
 api_key = "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"
@@ -10,9 +11,6 @@ def encode_image(image_path):
     return base64.b64encode(image_file.read()).decode('utf-8')
 
 def get_image_caption(image_path):
-
-    # Path to your image
-    image_path = "src/data/video_scene_images/1/frame_1.png"
 
     # Getting the base64 string
     base64_image = encode_image(image_path)
@@ -46,10 +44,36 @@ def get_image_caption(image_path):
 
     response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
 
+    print(response)
+    print(response.json())
+
     return (response.json()["choices"][0]["message"]["content"])
+   
+
+def generate_captions_for_folder(folder_path):
+    # Initialize a dictionary to store image paths and their captions
+    captions_dict = {}
+
+    # List all files in the given folder
+    for image_file in os.listdir(folder_path):
+        # Construct the full path to the image file
+        image_path = os.path.join(folder_path, image_file)
+        
+        # Check if it's a file and not a subdirectory
+        if os.path.isfile(image_path):
+            # Use the existing function to get a caption for the image
+            caption = get_image_caption(image_path)
+            
+            # Store the caption in the dictionary using the image file name as the key
+            captions_dict[image_file[0]] = caption
+    
+    return captions_dict
 
 # Example usage
 if __name__ == "__main__":
-    image_path = "src/data/video_scene_images/1/frame_1.png"  # Replace with the path to your image
-    caption = get_image_caption(image_path)
-    print(caption)
+    folder_path = "src/data/video_scene_images/1"  # Replace with your actual folder path
+    captions_dict = generate_captions_for_folder(folder_path)
+    
+    # Print out the captions for each image
+    for image_file, caption in captions_dict.items():
+        print(f"{image_file}: {caption}")
