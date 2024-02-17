@@ -2,17 +2,13 @@
 import streamlit as st
 import time
 from visualization_page import show_visualization
+from chat_page import show_chat
 
 
 # Define functions for other pages (placeholders for now)
 def show_clusters():
     st.title("Clusters")
     st.write("Cluster visualization will be implemented here.")
-
-
-def show_chat():
-    st.title("Chat")
-    st.write("Chat interface will be implemented here.")
 
 
 def show_tabs():

@@ -56,4 +56,4 @@ def prep_rag(directory="../data/video_documents"):
 
 
 # Call the function to process and upload data
-prep_rag()
+# prep_rag()

@@ -1,7 +1,7 @@
 from pinecone import Pinecone
 import os
 import json
-from embed_text import embed_text
+from utils.embed_text import embed_text
 
 # Assume Pinecone and embed_text are properly initialized and imported
 pc = Pinecone(api_key="95cbf918-f4f3-4c2c-8701-cc953c55fce7")
@@ -18,9 +18,6 @@ def embed_query(query):
 
 
 def search_pinecone(embedded_query, top_k=10):
-    # This function searches the Pinecone index and returns the top k results
-    # Ensure that the query is properly formatted
-    # Specifically, the vectors parameter should be a list of vectors, without mixing IDs in the query payload
     try:
         response = index.query(vector=embedded_query, top_k=top_k)
         return response
@@ -40,6 +37,21 @@ def get_video_document_ids(matching_documents):
     return list(video_ids)
 
 
+def get_video_ids_and_scene_chunk_ids(matching_documents):
+    # This extracts video document ids from the matching documents' ids
+    video_ids_to_scene_chunk_ids = dict()
+    for doc in matching_documents:
+        video_id = doc.split("_")[0]
+        chunk_scene_id = doc.split("_")[1]
+        # Assuming the doc ID format is "mockvideo<id>_chunk/scene<chunk/sceneid>"
+        if video_id in video_ids_to_scene_chunk_ids:
+            video_ids_to_scene_chunk_ids[video_id] += [chunk_scene_id]
+        else:
+            video_ids_to_scene_chunk_ids[video_id] = [chunk_scene_id]
+
+    return video_ids_to_scene_chunk_ids
+
+
 def load_video_documents(video_ids, directory="../data/video_documents"):
     # This function loads the video documents based on the video ids
     video_documents = []
@@ -51,16 +63,61 @@ def load_video_documents(video_ids, directory="../data/video_documents"):
     return video_documents
 
 
+def load_reduced_video_documents(
+    video_ids_and_scene_chunk_ids, directory="./data/video_documents"
+):
+    # This function loads the video documents based on the video ids
+    video_documents = []
+
+    # print(video_ids_and_scene_chunk_ids)
+    for video_id, scene_chunk_ids in video_ids_and_scene_chunk_ids.items():
+        file_path = os.path.join(directory, f"{video_id}.json")
+
+        video_json = None
+        if os.path.exists(file_path):
+            with open(file_path, "r") as file:
+                video_json = json.load(file)
+        else:
+            print("ERROR INVALID PATH")
+            return
+
+        new_transcript_chunks = {}
+        new_scene_captions = {}
+
+        for scene_chunk_id in scene_chunk_ids:
+            if "chunk" in scene_chunk_id:
+                chunk_id = scene_chunk_id.split("chunk")[-1]
+                new_transcript_chunks[chunk_id] = video_json["transcript_chunks"][
+                    chunk_id
+                ]
+            else:
+                scene_id = scene_chunk_id.split("scene")[-1]
+                new_scene_captions[scene_id] = video_json["scene_captions"][scene_id]
+
+        video_json["transcript_chunks"] = new_transcript_chunks
+        video_json["scene_captions"] = new_scene_captions
+
+        video_documents.append(video_json)
+    # print(video_documents)
+    return video_documents
+
+
 def rag_query(query):
     embedded_query = embed_query(query)
     search_results = search_pinecone(embedded_query)
-    print(search_results)
+    # print(search_results)
     matches = search_results["matches"]
     matching_documents = [result["id"] for result in matches]
+    # print("matching_documents: ", matching_documents)
 
     video_ids = get_video_document_ids(matching_documents)
-    video_ids = list(set(video_ids))
-    video_documents = load_video_documents(video_ids)
+
+    video_ids_and_scene_chunk_ids = get_video_ids_and_scene_chunk_ids(
+        matching_documents
+    )
+
+    # video_documents = load_video_documents(video_ids)
+    video_documents = load_reduced_video_documents(video_ids_and_scene_chunk_ids)
 
     ragged_query = "You are a youtube channel question answering bot. I will provide you some context of a few of the channels videos, but not all of them, they are only a subset that are related to the user's query. Respond as the question answering chatbot using this limited subset of youtube channel information: "
     for doc in video_documents:
@@ -73,7 +130,7 @@ def rag_query(query):
 # Save this function in a file named rag_query.py
 
 
-query = input("ask a question:")
-ragged = rag_query(query)
-print("NEW QUERY")
-print(ragged)
+# query = input("ask a question:")
+# ragged = rag_query(query)
+# print("NEW QUERY")
+# print(ragged)
