@@ -18,6 +18,6 @@ def read_video_document(video_id):
 
 
 # Example usage
-video_id = "12345"
+video_id = "video0"
 video_document = read_video_document(video_id)
 print(video_document)
