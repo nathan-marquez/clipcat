@@ -5,10 +5,10 @@ from utils.embed_text import embed_text
 
 # Assume Pinecone and embed_text are properly initialized and imported
 pc = Pinecone(api_key="95cbf918-f4f3-4c2c-8701-cc953c55fce7")
-index_name = "mockclipcat"
+index_name = "clipcatindex"
 index = pc.Index(
     name=index_name,
-    host="https://mockclipcat-6h75lpv.svc.gcp-starter.pinecone.io",
+    host="https://clipcatindex-6h75lpv.svc.gcp-starter.pinecone.io",
 )
 
 
@@ -17,7 +17,7 @@ def embed_query(query):
     return embed_text(query)
 
 
-def search_pinecone(embedded_query, top_k=10):
+def search_pinecone(embedded_query, top_k=8):
     try:
         response = index.query(vector=embedded_query, top_k=top_k)
         return response
@@ -32,7 +32,7 @@ def get_video_document_ids(matching_documents):
     for doc in matching_documents:
         video_id = doc.split("_")[
             0
-        ]  # Assuming the doc ID format is "mockvideo<id>_chunk/scene<chunk/sceneid>"
+        ]  # Assuming the doc ID format is "<id>_chunk/scene<chunk/sceneid>"
         video_ids.add(video_id)
     return list(video_ids)
 
@@ -43,7 +43,7 @@ def get_video_ids_and_scene_chunk_ids(matching_documents):
     for doc in matching_documents:
         video_id = doc.split("_")[0]
         chunk_scene_id = doc.split("_")[1]
-        # Assuming the doc ID format is "mockvideo<id>_chunk/scene<chunk/sceneid>"
+        # Assuming the doc ID format is "video<id>_chunk/scene<chunk/sceneid>"
         if video_id in video_ids_to_scene_chunk_ids:
             video_ids_to_scene_chunk_ids[video_id] += [chunk_scene_id]
         else:
@@ -69,7 +69,6 @@ def load_reduced_video_documents(
     # This function loads the video documents based on the video ids
     video_documents = []
 
-    # print(video_ids_and_scene_chunk_ids)
     for video_id, scene_chunk_ids in video_ids_and_scene_chunk_ids.items():
         file_path = os.path.join(directory, f"{video_id}.json")
 
@@ -79,6 +78,8 @@ def load_reduced_video_documents(
                 video_json = json.load(file)
         else:
             print("ERROR INVALID PATH")
+            print(os.getcwd())
+            print(file_path)
             return
 
         new_transcript_chunks = {}
@@ -95,10 +96,9 @@ def load_reduced_video_documents(
                 new_scene_captions[scene_id] = video_json["scene_captions"][scene_id]
 
         video_json["transcript_chunks"] = new_transcript_chunks
-        video_json["scene_captions"] = new_scene_captions
+        # video_json["scene_captions"] = new_scene_captions
 
         video_documents.append(video_json)
-    # print(video_documents)
     return video_documents
 
 

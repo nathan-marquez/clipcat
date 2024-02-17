@@ -7,12 +7,12 @@ from embed_text import embed_text
 pc = Pinecone(api_key="95cbf918-f4f3-4c2c-8701-cc953c55fce7")
 
 # Name of your index
-index_name = "mockclipcat"
+index_name = "clipcatindex"
 
 # Connect to the index
 index = pc.Index(
     name=index_name,
-    host="https://mockclipcat-6h75lpv.svc.gcp-starter.pinecone.io",
+    host="https://clipcatindex-6h75lpv.svc.gcp-starter.pinecone.io",
 )
 
 
@@ -33,6 +33,7 @@ def prep_rag(directory="../data/video_documents"):
     files = os.listdir(directory)
 
     for file in files:
+        print(file)
         # Construct the full file path
         file_path = os.path.join(directory, file)
 
@@ -56,4 +57,4 @@ def prep_rag(directory="../data/video_documents"):
 
 
 # Call the function to process and upload data
-# prep_rag()
+prep_rag()

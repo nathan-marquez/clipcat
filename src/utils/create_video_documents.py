@@ -25,17 +25,21 @@ for video in videos:
     count += 1
     if count > 100:
         break
-    if count < 38: continue
-    videoId = video['videoId']
-    urls.append(f'https://www.youtube.com/watch?v={videoId}')
-    
+    if count < 38:
+        continue
+    videoId = video["videoId"]
+    urls.append(f"https://www.youtube.com/watch?v={videoId}")
+
+
 # Function to save a URL to a JSON file
 def save_url_to_json(url, folder_path, id):
     file_path = os.path.join(folder_path, f"video{id}.json")
-    
-    YouTube(url).streams.first().download(output_path = 'src/data/raw_videos_full', filename ='currentvid.mp4')
 
-    video_path = 'src/data/raw_videos_full/currentvid.mp4'
+    YouTube(url).streams.first().download(
+        output_path="src/data/raw_videos_full", filename="currentvid.mp4"
+    )
+
+    video_path = "src/data/raw_videos_full/currentvid.mp4"
 
     extract_scenes(video_path, id)
 
@@ -50,23 +54,25 @@ def save_url_to_json(url, folder_path, id):
     video_summary = get_summary(video_transcript)
     print("got video_summary")
 
-    video_scene_captions = generate_captions_for_folder(f"src/data/video_scene_images/{id}")
+    video_scene_captions = generate_captions_for_folder(
+        f"src/data/video_scene_images/{id}"
+    )
     print("got video_scene_captions")
 
-
     # Create a dictionary with the URL
-    url_dict = {"url": url,
-                "trascript_chunks": video_transcript_chunks,
-                "summary": video_summary,
-                "scene_captions": video_scene_captions
-                }
-    
+    url_dict = {
+        "url": url,
+        "transcript_chunks": video_transcript_chunks,
+        "summary": video_summary,
+        "scene_captions": video_scene_captions,
+    }
+
     url_dict.update(video_info)
-    
+
     # Save the dictionary to a JSON file
-    with open(file_path, 'w') as json_file:
+    with open(file_path, "w") as json_file:
         json.dump(url_dict, json_file, indent=4)
-    
+
     print(f"URL saved to {file_path}")
 
     os.remove(video_path)

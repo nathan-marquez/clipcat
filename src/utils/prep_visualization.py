@@ -5,7 +5,7 @@ from reduce_embeddings import reduce_embeddings
 
 
 def prep_visualization():
-    # Directory where mock video documents are stored
+    # Directory where video documents are stored
     documents_dir = "../data/video_documents"
     output_file = "../data/reduced_document_vectors.json"
 
@@ -16,7 +16,7 @@ def prep_visualization():
     # Iterate over video document files
     for filename in os.listdir(documents_dir):
         print(filename)
-        if filename.startswith("mockvideo") and filename.endswith(".json"):
+        if filename.startswith("video") and filename.endswith(".json"):
             filepath = os.path.join(documents_dir, filename)
             with open(filepath, "r") as file:
                 video_document = json.load(file)
@@ -25,8 +25,8 @@ def prep_visualization():
                 # Generate embedding for the document text
                 embedding = embed_text(document_string)
                 embeddings.append(embedding)
-                # Extract document id from filename, assuming the format "mockvideo{id}.json"
-                document_id = filename.replace("mockvideo", "").replace(".json", "")
+                # Extract document id from filename, assuming the format "video{id}.json"
+                document_id = filename.replace("video", "").replace(".json", "")
                 document_ids.append(document_id)
 
     reduced_embeddings = reduce_embeddings(embeddings)
@@ -45,4 +45,4 @@ def prep_visualization():
 
 
 # Call the function
-prep_visualization()
+# prep_visualization()
