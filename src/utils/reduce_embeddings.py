@@ -27,10 +27,10 @@ def reduce_embeddings(embeddings):
 # print(reduced_embeddings)
 
 
-num_embeddings = 5
-embedding_dim = 512
-random_embeddings = np.random.rand(num_embeddings, embedding_dim)
+# num_embeddings = 5
+# embedding_dim = 512
+# random_embeddings = np.random.rand(num_embeddings, embedding_dim)
 
-random_embeddings.tolist()
+# random_embeddings.tolist()
 
-print(reduce_embeddings(random_embeddings))
+# print(reduce_embeddings(random_embeddings))
