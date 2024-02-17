@@ -2,7 +2,7 @@ import json
 import os
 
 
-def read_video_document(video_id):
+def get_video_document_data(video_id):
     # Define the path to the video document based on the given video_id
     file_path = f"./data/video_documents/{video_id}.json"
 
@@ -18,6 +18,6 @@ def read_video_document(video_id):
 
 
 # Example usage
-video_id = "video0"
-video_document = read_video_document(video_id)
-print(video_document)
+# video_id = "video0"
+# video_document = get_video_document_data(video_id)
+# print(video_document)
