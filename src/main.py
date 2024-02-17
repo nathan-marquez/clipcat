@@ -1,55 +1,62 @@
+# main.py
 import streamlit as st
-import plotly.graph_objs as go
-import json
+import time
+from visualization_page import show_visualization
 
 
-# Function to load the reduced document vectors from JSON
-def load_reduced_vectors(filename):
-    with open(filename, "r") as file:
-        data = json.load(file)
-    return data
+# Define functions for other pages (placeholders for now)
+def show_clusters():
+    st.title("Clusters")
+    st.write("Cluster visualization will be implemented here.")
 
 
-# Function to create a 3D plot of the vectors
-def plot_3d_vectors(vectors):
-    x = [v[0] for v in vectors.values()]
-    y = [v[1] for v in vectors.values()]
-    z = [v[2] for v in vectors.values()]
-    ids = list(vectors.keys())
-
-    trace = go.Scatter3d(
-        x=x,
-        y=y,
-        z=z,
-        mode="markers+text",
-        marker=dict(
-            size=5,
-            opacity=0.8,
-        ),
-        text=ids,
-        textposition="top center",
-    )
-
-    layout = go.Layout(
-        margin=dict(l=0, r=0, b=0, t=0),
-        scene=dict(xaxis_title="X", yaxis_title="Y", zaxis_title="Z"),
-    )
-
-    fig = go.Figure(data=[trace], layout=layout)
-    return fig
+def show_chat():
+    st.title("Chat")
+    st.write("Chat interface will be implemented here.")
 
 
-# Streamlit app
-def main():
-    st.title("3D Visualization of Reduced Document Vectors")
+def show_tabs():
+    pages = {
+        "Visualization": show_visualization,
+        "Clusters": show_clusters,
+        "Chat": show_chat,
+    }
 
-    # Load the reduced document vectors
-    vectors = load_reduced_vectors("data/reduced_document_vectors.json")
+    st.sidebar.title("Navigation")
+    page = st.sidebar.radio("Go to", list(pages.keys()))
 
-    # Plot the vectors
-    fig = plot_3d_vectors(vectors)
-    st.plotly_chart(fig, use_container_width=True)
+    # Display the selected page
+    pages[page]()
 
 
-if __name__ == "__main__":
-    main()
+# Function to show the home screen
+def show_home():
+    st.title("🐱 ClipCat")
+    youtube_url = st.text_input("Enter a YouTube channel URL:")
+    if st.button("Go"):
+        # Save the URL in the session state and move to loading screen
+        st.session_state.youtube_url = youtube_url
+        st.session_state.current_page = "tabs"
+
+
+# Function to show the loading screen and then automatically transition to the tabs
+def show_loading():
+    st.title("Loading...")
+    st.write("Processing your request. Please wait.")
+    # Mock loading process
+    time.sleep(5)
+    # Transition to the tabs screen after loading
+    st.session_state.current_page = "tabs"
+
+
+# Main app logic to control page flow
+if "current_page" not in st.session_state:
+    st.session_state.current_page = "home"
+
+if st.session_state.current_page == "home":
+    show_home()
+elif st.session_state.current_page == "loading":
+    show_loading()
+    st.session_state.current_page = "tabs"
+elif st.session_state.current_page == "tabs":
+    show_tabs()
