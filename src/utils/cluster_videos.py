@@ -10,7 +10,7 @@ def cluster_videos(category: str, cluster_size = 5):
     # 1. perform a pass through the video_documents folder. retrieve all summarries from video jsons. 
     #    -  from this, we get a dictionary called summaryDict, which has keys as the video id, and values as the summary
 
-    folder_path = "src/data/video_documents"
+    folder_path = "data/video_documents"
     summaryDict = {}
     categoryDict = {}
 
@@ -40,7 +40,7 @@ def cluster_videos(category: str, cluster_size = 5):
     # Assuming function to interact with ChatGPT API
     def get_subcategories(texts):
         # Implement API call to ChatGPT 3.5 Turbo to get subcategories
-        client = OpenAI(api_key="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")
+        client = OpenAI(api_key="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")
 
         completion = client.chat.completions.create(
         model="gpt-3.5-turbo",
@@ -50,7 +50,7 @@ def cluster_videos(category: str, cluster_size = 5):
         ]
         )
 
-        response = completion.choices[0].message.content
+        response = completion.choices[0].message.content.lower()
 
         return response
     
@@ -62,7 +62,7 @@ def cluster_videos(category: str, cluster_size = 5):
         all_subcategories_flat = [subcategory for sublist in subcategory_lists for subcategory in sublist]
         
         # Convert the list into a string, separated by a unique separator if needed
-        subcategories_string = ", ".join(all_subcategories_flat)
+        subcategories_string = ", ".join(all_subcategories_flat).lower()
 
         return subcategories_string
     
@@ -107,7 +107,7 @@ def cluster_videos(category: str, cluster_size = 5):
 
     def determine_cluster(summary, clusters):
         # Implement API call to ChatGPT 3.5 Turbo to get clusters
-        client = OpenAI(api_key="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")
+        client = OpenAI(api_key="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")
 
         completion = client.chat.completions.create(
         model="gpt-3.5-turbo",
@@ -117,7 +117,7 @@ def cluster_videos(category: str, cluster_size = 5):
         ]
         )
 
-        response = completion.choices[0].message.content
+        response = completion.choices[0].message.content.lower()
 
         return response
 
@@ -135,4 +135,4 @@ def cluster_videos(category: str, cluster_size = 5):
     return categoryDict
 
     
-print(cluster_videos("theme", 7))
+# print(cluster_videos("excitement level", 10))
